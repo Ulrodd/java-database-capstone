@@ -1,7 +1,7 @@
-package com.example.controller;
+package com.project.back_end.controllers;
 
-import com.example.model.Admin;
-import com.example.service.Service;
+import com.project.back_end.models.Admin;
+import com.project.back_end.services.SharedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +12,10 @@ import java.util.Map;
 @RequestMapping("${api.path}" + "admin")
 public class AdminController {
 
-    private final Service service;
+    private final SharedService service;
 
     @Autowired
-    public AdminController(Service service) {
+    public AdminController(SharedService service) {
         this.service = service;
     }
 

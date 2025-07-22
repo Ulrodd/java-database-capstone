@@ -1,19 +1,19 @@
-package com.example.service;
+package com.project.back_end.services;
 
-import com.example.model.Admin;
-import com.example.model.Doctor;
-import com.example.model.Patient;
-import com.example.repository.AdminRepository;
-import com.example.repository.DoctorRepository;
-import com.example.repository.PatientRepository;
+import com.project.back_end.models.Admin;
+import com.project.back_end.models.Doctor;
+import com.project.back_end.models.Patient;
+import com.project.back_end.repo.AdminRepository;
+import com.project.back_end.repo.DoctorRepository;
+import com.project.back_end.repo.PatientRepository;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 
@@ -27,16 +27,19 @@ public class TokenService {
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
 
-    public TokenService(AdminRepository adminRepository, DoctorRepository doctorRepository, PatientRepository patientRepository) {
+    private static final long EXPIRATION_TIME_MS = 7 * 24 * 60 * 60 * 1000L; // 7 jours
+
+    public TokenService(AdminRepository adminRepository,
+                        DoctorRepository doctorRepository,
+                        PatientRepository patientRepository) {
         this.adminRepository = adminRepository;
         this.doctorRepository = doctorRepository;
         this.patientRepository = patientRepository;
     }
 
-    // Génère un JWT
     public String generateToken(String identifier) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + 604800000L); // 7 jours en ms
+        Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME_MS);
 
         return Jwts.builder()
                 .setSubject(identifier)
@@ -46,39 +49,34 @@ public class TokenService {
                 .compact();
     }
 
-    // Extrait l'identifiant (email ou username) du token
     public String extractIdentifier(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-    }
-
-    // Valide un token selon le type d'utilisateur
-    public boolean validateToken(String token, String userType) {
         try {
-            String identifier = extractIdentifier(token);
-            switch (userType.toLowerCase()) {
-                case "admin":
-                    Optional<Admin> admin = adminRepository.findByUsername(identifier);
-                    return admin.isPresent();
-                case "doctor":
-                    Optional<Doctor> doctor = doctorRepository.findByEmail(identifier);
-                    return doctor.isPresent();
-                case "patient":
-                    Optional<Patient> patient = patientRepository.findByEmail(identifier);
-                    return patient.isPresent();
-                default:
-                    return false;
-            }
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
         } catch (JwtException | IllegalArgumentException e) {
-            return false; // Token invalide ou expiré
+            return null;
         }
     }
 
+    public boolean validateToken(String token, String userType) {
+        String identifier = extractIdentifier(token);
+        if (identifier == null) return false;
+
+        return switch (userType.toLowerCase()) {
+            case "admin" -> adminRepository.findByUsername(identifier).isPresent();
+            case "doctor" -> doctorRepository.findByEmail(identifier).isPresent();
+            case "patient" -> patientRepository.findByEmail(identifier).isPresent();
+            default -> false;
+        };
+    }
+
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(secretKey.getBytes());
+        // Clé d’au moins 256 bits (32 caractères ASCII)
+        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

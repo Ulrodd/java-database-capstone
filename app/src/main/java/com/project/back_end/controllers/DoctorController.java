@@ -1,7 +1,7 @@
-package com.example.controller;
+package com.project.back_end.controllers;
 
-import com.example.model.Doctor;
-import com.example.service.Service;
+import com.project.back_end.models.Doctor;
+import com.project.back_end.services.DoctorService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +14,10 @@ import java.util.Map;
 @RequestMapping("/doctors")
 public class DoctorController {
 
-    private final Service service;
+    private final DoctorService service;
 
     @Autowired
-    public DoctorController(Service service) {
+    public DoctorController(DoctorService service) {
         this.service = service;
     }
 

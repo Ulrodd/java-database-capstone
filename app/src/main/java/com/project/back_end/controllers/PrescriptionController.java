@@ -1,7 +1,7 @@
-package com.example.controller;
+package com.project.back_end.controllers;
 
-import com.example.model.Prescription;
-import com.example.service.PrescriptionService;
+import com.project.back_end.models.Prescription;
+import com.project.back_end.services.PrescriptionService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

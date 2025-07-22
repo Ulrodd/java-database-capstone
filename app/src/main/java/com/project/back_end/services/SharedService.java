@@ -1,7 +1,8 @@
-package com.example.service;
+package com.project.back_end.services;
 
-import com.example.model.*;
-import com.example.repository.*;
+import com.project.back_end.DTO.*;
+import com.project.back_end.models.*;
+import com.project.back_end.repo.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class Service {
+public class SharedService {
 
     private final TokenService tokenService;
     private final AdminRepository adminRepository;
@@ -18,9 +19,9 @@ public class Service {
     private final DoctorService doctorService;
     private final PatientService patientService;
 
-    public Service(TokenService tokenService, AdminRepository adminRepository,
-                   DoctorRepository doctorRepository, PatientRepository patientRepository,
-                   DoctorService doctorService, PatientService patientService) {
+    public SharedService(TokenService tokenService, AdminRepository adminRepository,
+                         DoctorRepository doctorRepository, PatientRepository patientRepository,
+                         DoctorService doctorService, PatientService patientService) {
         this.tokenService = tokenService;
         this.adminRepository = adminRepository;
         this.doctorRepository = doctorRepository;
@@ -60,7 +61,7 @@ public class Service {
     // Filtre des médecins selon nom, spécialité et temps disponible
     public Map<String, Object> filterDoctor(String name, String specialty, String time) {
         Map<String, Object> response = new HashMap<>();
-        List<Doctor> doctors = doctorService.filterDoctorsByNameSpecialtyAndTime(name, specialty, time);
+        List<Doctor> doctors = doctorService.filterDoctorsByNameSpecialityAndTime(name, specialty, time);
         response.put("doctors", doctors);
         return response;
     }
@@ -101,23 +102,35 @@ public class Service {
     // Filtre les rendez-vous des patients par condition et nom médecin
     public ResponseEntity<Map<String, Object>> filterPatient(String condition, String name, String token) {
         Map<String, Object> response = new HashMap<>();
-        // On extrait email du token pour identifier le patient
-        String email = tokenService.extractIdentifier(token);
+
+        // Valider token avant tout
         if (!tokenService.validateToken(token, "patient")) {
             response.put("message", "Token invalide ou expiré");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
 
+        // Extraire email du token
+        String email = tokenService.extractIdentifier(token);
+
+        // Récupérer patient par email
+        Optional<Patient> patientOpt = patientRepository.findByEmail(email);
+        if (patientOpt.isEmpty()) {
+            response.put("message", "Patient non trouvé");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        Long patientId = patientOpt.get().getId();
+
         List<Appointment> filteredAppointments;
 
         if (condition != null && !condition.isEmpty() && name != null && !name.isEmpty()) {
-            filteredAppointments = patientService.filterByDoctorAndCondition(email, name, condition);
+            // Si PatientService n'a pas cette méthode, il faudra la créer
+            filteredAppointments = patientService.filterByDoctorAndCondition(patientId, name, condition);
         } else if (condition != null && !condition.isEmpty()) {
-            filteredAppointments = patientService.filterByCondition(email, condition);
+            filteredAppointments = patientService.filterByCondition(patientId, condition);
         } else if (name != null && !name.isEmpty()) {
-            filteredAppointments = patientService.filterByDoctor(email, name);
+            filteredAppointments = patientService.filterByDoctor(patientId, name);
         } else {
-            filteredAppointments = patientService.getAllAppointments(email);
+            filteredAppointments = patientService.getAllAppointments(patientId);
         }
 
         response.put("appointments", filteredAppointments);

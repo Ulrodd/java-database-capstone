@@ -1,9 +1,10 @@
-package com.example.service;
+package com.project.back_end.services;
 
-import com.example.model.Doctor;
-import com.example.model.Login;
-import com.example.repository.AppointmentRepository;
-import com.example.repository.DoctorRepository;
+import com.project.back_end.models.Doctor;
+import com.project.back_end.DTO.Login;
+import com.project.back_end.repo.AppointmentRepository;
+import com.project.back_end.repo.DoctorRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -98,7 +99,7 @@ public class DoctorService {
         return result;
     }
 
-    public Map<String, Object> filterDoctorsByNameSpecilityandTime(String name, String specialty, String amOrPm) {
+    public Map<String, Object> filterDoctorsByNameSpecialityandTime(String name, String specialty, String amOrPm) {
         List<Doctor> filtered = doctorRepository.findByNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name, specialty);
         filtered = filterDoctorByTime(filtered, amOrPm);
         return Map.of("doctors", filtered);
@@ -137,10 +138,10 @@ public class DoctorService {
         return doctors.stream()
                 .filter(d -> {
                     if ("AM".equalsIgnoreCase(amOrPm)) {
-                        return d.getAvailableTimeSlots().stream()
+                        return d.getAvailableTimes().stream()
                                 .anyMatch(slot -> slot.compareTo("12:00") < 0);
                     } else if ("PM".equalsIgnoreCase(amOrPm)) {
-                        return d.getAvailableTimeSlots().stream()
+                        return d.getAvailableTimes().stream()
                                 .anyMatch(slot -> slot.compareTo("12:00") >= 0);
                     }
                     return true;

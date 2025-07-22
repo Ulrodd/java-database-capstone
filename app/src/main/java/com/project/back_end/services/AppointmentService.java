@@ -1,9 +1,9 @@
-package com.example.service;
+package com.project.back_end.services;
 
-import com.example.model.Appointment;
-import com.example.repository.AppointmentRepository;
-import com.example.repository.DoctorRepository;
-import com.example.repository.PatientRepository;
+import com.project.back_end.models.Appointment;
+import com.project.back_end.repo.AppointmentRepository;
+import com.project.back_end.repo.DoctorRepository;
+import com.project.back_end.repo.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
