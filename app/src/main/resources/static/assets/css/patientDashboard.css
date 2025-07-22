@@ -1,80 +1,106 @@
-/* This is the style sheet for the patientDashboard.html */
-  .card-actions {
-    background-color: #244557;
-    padding: 10px;
-    text-align: center;
-  }
+/* Styles généraux */
+.searchBar, .filter-select {
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  margin: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+}
 
-  .card-actions:hover{
-    background-color: #1c3745;
+/* Actions de carte */
+.card-actions {
+  background-color: #f0f0f0;
+  text-align: center;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+}
+
+.card-actions button {
+  background-color: #017d7e;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: filter 0.3s ease;
+}
+
+.card-actions button:hover {
+  filter: brightness(1.1);
+}
+
+/* Ripple effect (visual feedback) */
+.ripple {
+  position: fixed;
+  border-radius: 50%;
+  background-color: rgba(1, 93, 93, 0.5);
+  transform: scale(0);
+  animation: rippleEffect 0.6s linear;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+@keyframes rippleEffect {
+  to {
+    transform: scale(10);
+    opacity: 0;
   }
-  .ripple-overlay {
-    position: fixed;
-    width: 20px;
-    height: 20px;
-    background-color: #1c3745;
-    border-radius: 50%;
-    z-index: 9999;
-    transform: translate(-50%, -50%) scale(0);
-    transition: transform 1s ease-out, opacity 1s ease;
-  }
-  
-  .ripple-overlay.active {
-    transform: translate(-50%, -50%) scale(150);
-    opacity: 1;
-  }
-  
-  .modalApp {
-    position: fixed;
+}
+
+/* Modal réservation en bas */
+.modalApp {
+  position: fixed;
   bottom: -100%;
   left: 50%;
   transform: translateX(-50%);
-  width: 50%;
-  background: #fff;
-  padding: 20px;
-  z-index: 10000;
-  transition: bottom 1.5s ease-in;
-  box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.3);
-  border-radius: 10px 10px 0 0;
-  text-align: center;
-  }
-  
-  .modalApp.active {
-    bottom: 0;
-  }
-  
-  .modalApp h2 {
-    margin-top: 20px;
-  }
-  
-  .modalApp input {
-    display: block;
-    margin: 10px auto;
-    padding: 10px;
-    width: 90%;
-    margin-bottom: 40px;
+  background: white;
+  width: 90%;
+  padding: 1.5rem;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+  transition: bottom 0.3s ease-in-out;
+  z-index: 1000;
+}
+
+.modalApp.active {
+  bottom: 0;
+}
+
+.modalApp input,
+.modalApp select {
+  width: 90%;
+  padding: 0.8rem;
+  margin: 0.6rem auto;
+  display: block;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.modalApp button {
+  background-color: #015c5d;
+  color: white;
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 1rem;
+  width: 90%;
+  display: block;
+}
+
+.modalApp button:hover {
+  filter: brightness(1.2);
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .searchBar, .filter-select {
+    width: 100%;
+    margin: 0.5rem 0;
   }
 
-  .modalApp select {
-    display: block;
-    margin: 10px auto;
-    padding: 10px;
-    width: 90%;
-    margin-bottom: 40px;
+  .modalApp {
+    width: 100%;
   }
-  
-  .confirm-booking {
-    padding: 10px 20px;
-    background: #1c3745;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    
-  
-    
-  }
-  .confirm-booking:hover {
-    filter: brightness(1.2);
-    background-color: #1c3745;
-  }
-  
+}
